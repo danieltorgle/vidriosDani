@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0e0e10">
+<title>Panel de Administración — Vidrios y Aluminios Dany</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+/* ══════════════════════════════════════
+   TOKENS — mismos que el index principal
+══════════════════════════════════════ */
+:root{
+  --accent:       #4da8d4;
+  --accent-light: #7dcbea;
+  --accent-warm:  #5b9ab8;
+  --accent-dim:   rgba(77,168,212,.15);
+  --accent-glow:  rgba(77,168,212,.10);
+
+  --bg-base:      #0f1318;
+  --bg-raised:    #141a21;
+  --bg-elevated:  #1b2330;
+  --bg-overlay:   #222d3a;
+
+  --glass-1:      rgba(100,150,190,.04);
+  --glass-2:      rgba(100,150,190,.08);
+  --glass-3:      rgba(100,150,190,.14);
+
+  --border-soft:  rgba(100,150,200,.10);
+  --border-mid:   rgba(100,150,200,.18);
+  --border-plat:  rgba(77,168,212,.28);
+
+  --text-1:       #e8edf4;
+  --text-2:       rgba(220,230,242,.52);
+  --text-3:       rgba(200,215,235,.28);
+
+  --danger:       #e2685f;
+  --danger-dim:   rgba(226,104,95,.14);
+  --success:      #5fbf8f;
+
+  --r-xl:  28px;
+  --r-lg:  20px;
+  --r-md:  14px;
+  --r-sm:  10px;
+
+  --ease:   cubic-bezier(.32,.72,0,1);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+
+  --t-fast:  .38s;
+  --t-mid:   .6s;
+  --t-slow:  .85s;
+
+  --hh: 62px;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+*, *::before, *::after{ margin:0; padding:0; box-sizing:border-box; }
+html{ color-scheme:dark; }
+body{ background:var(--bg-base); color:var(--text-1); min-height:100svh; overflow-x:hidden; }
+
+body::after{
+  content:""; position:fixed; inset:0; z-index:9999; pointer-events:none;
+  opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px;
+}
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+header{
+  position:fixed; top:0; left:0; right:0; height:var(--hh);
+  z-index:2000;
+  background:rgba(15,19,24,.88);
+  backdrop-filter:saturate(180%) blur(28px);
+  -webkit-backdrop-filter:saturate(180%) blur(28px);
+  border-bottom:1px solid var(--border-soft);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 max(24px,env(safe-area-inset-left));
+}
+.logo{ display:flex; align-items:center; gap:10px; text-decoration:none; }
+.logo-mark{
+  width:30px; height:30px; border-radius:8px;
+  background:linear-gradient(135deg,var(--accent-light),#2a6a8a);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.75rem; font-weight:800; color:#0f1318;
+  letter-spacing:-.02em; flex-shrink:0;
+  box-shadow:0 2px 10px rgba(77,168,212,.22);
+}
+.logo-text{ font-size:.88rem; font-weight:600; color:var(--text-1); letter-spacing:-.01em; }
+.logo-text span{ color:var(--accent); }
+.header-right{ display:flex; align-items:center; gap:10px; }
+.back-link{
+  text-decoration:none; color:var(--text-2); font-size:.82rem; font-weight:500;
+  padding:7px 14px; border-radius:20px;
+  transition:background var(--t-fast) ease, color var(--t-fast) ease;
+}
+.back-link:hover{ background:var(--glass-2); color:var(--text-1); }
+.logout-btn{
+  display:none; align-items:center; gap:6px;
+  background:var(--danger-dim); color:#f0a8a2 !important; font-weight:600; font-size:.8rem;
+  padding:7px 16px; border-radius:20px; border:1px solid rgba(226,104,95,.28);
+  cursor:pointer; backdrop-filter:blur(12px);
+  transition:background var(--t-fast) ease, transform var(--t-fast) var(--spring);
+}
+.logout-btn:hover{ background:rgba(226,104,95,.22); }
+.logout-btn:active{ transform:scale(.95); }
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
+.login-wrap{
+  min-height:100svh; display:flex; align-items:center; justify-content:center;
+  padding:calc(var(--hh) + 40px) 20px 60px;
+  position:relative;
+}
+.login-wrap::before{
+  content:""; position:absolute; top:-10%; left:50%; transform:translateX(-50%);
+  width:600px; height:600px; border-radius:50%;
+  background:radial-gradient(ellipse, rgba(80,140,190,.10) 0%, transparent 65%);
+  pointer-events:none;
+}
+.login-card{
+  position:relative; z-index:1;
+  width:min(440px,100%);
+  background:var(--bg-elevated);
+  border:1px solid var(--border-soft);
+  border-radius:var(--r-xl);
+  padding:36px 30px;
+  box-shadow:0 24px 70px rgba(0,0,0,.5);
+}
+.login-icon{
+  width:52px; height:52px; border-radius:var(--r-md);
+  background:var(--accent-dim); border:1px solid var(--border-plat);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.4rem; margin-bottom:18px;
+}
+.login-card h1{ font-size:1.3rem; font-weight:700; letter-spacing:-.02em; margin-bottom:8px; }
+.login-card p{ color:var(--text-2); font-size:.86rem; line-height:1.62; margin-bottom:22px; }
+.login-card label{
+  display:block; font-size:.76rem; font-weight:600; color:var(--text-2);
+  letter-spacing:.03em; text-transform:uppercase; margin-bottom:7px;
+}
+.login-card input{
+  width:100%; padding:14px 16px; border-radius:var(--r-md);
+  border:1px solid var(--border-soft);
+  background:var(--bg-raised); color:var(--text-1);
+  font-size:.9rem; outline:none; font-family:ui-monospace,monospace;
+  transition:border-color var(--t-fast) ease, box-shadow var(--t-fast) ease;
+  margin-bottom:16px;
+}
+.login-card input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(77,168,212,.08);
+}
+.login-card input::placeholder{ color:var(--text-3); font-family:inherit; }
+
+.login-btn{
+  width:100%; padding:14px 20px; border:none; border-radius:50px;
+  background:rgba(77,168,212,.16); color:var(--accent-light);
+  cursor:pointer; font-weight:600; font-size:.92rem;
+  border:1px solid rgba(77,168,212,.30);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:background var(--t-fast) ease, transform var(--t-fast) var(--spring);
+}
+.login-btn:hover{ background:rgba(77,168,212,.24); transform:scale(1.01); }
+.login-btn:active{ transform:scale(.97); }
+.login-btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+.login-error{
+  display:none; align-items:flex-start; gap:8px;
+  background:var(--danger-dim); border:1px solid rgba(226,104,95,.28);
+  color:#f0a8a2; font-size:.82rem; padding:11px 14px;
+  border-radius:var(--r-sm); margin-bottom:16px; line-height:1.5;
+}
+.login-help{
+  margin-top:20px; padding-top:18px; border-top:1px solid var(--border-soft);
+  font-size:.78rem; color:var(--text-3); line-height:1.7;
+}
+.login-help a{ color:var(--accent); text-decoration:none; }
+.login-help a:hover{ text-decoration:underline; }
+.login-help code{
+  background:var(--bg-raised); padding:1px 6px; border-radius:5px;
+  font-size:.74rem; color:var(--accent-light); border:1px solid var(--border-soft);
+}
+
+/* ══════════════════════════════════════
+   PANEL (después de login)
+══════════════════════════════════════ */
+.panel{ display:none; min-height:100svh; padding:calc(var(--hh) + 32px) 20px 80px; }
+.panel-inner{ max-width:1100px; margin:0 auto; }
+.panel-header{ text-align:center; margin-bottom:32px; }
+.sec-label{
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--accent-warm); font-size:.7rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; margin-bottom:10px;
+}
+.sec-label::before{ content:""; display:block; width:20px; height:1px; background:var(--accent-warm); opacity:.6; }
+.panel-header h1{ font-size:clamp(1.4rem,3.5vw,1.9rem); font-weight:700; letter-spacing:-.02em; }
+.panel-sub{ color:var(--text-2); font-size:.85rem; margin-top:6px; }
+
+/* segmented (reutilizado del index) */
+.seg-wrap{
+  display:flex; justify-content:center;
+  background:var(--bg-elevated); border-radius:var(--r-md);
+  padding:4px; gap:2px; margin:0 auto 30px;
+  position:relative; border:1px solid var(--border-soft);
+  max-width:fit-content; overflow-x:auto;
+}
+.seg-pill{
+  position:absolute; top:4px; left:4px; height:calc(100% - 8px);
+  border-radius:calc(var(--r-md) - 4px);
+  background:var(--bg-overlay);
+  border:1px solid var(--border-plat);
+  box-shadow:0 0 14px var(--accent-glow);
+  transition:left var(--t-mid) var(--ease), width var(--t-mid) var(--ease);
+  pointer-events:none; z-index:0;
+}
+.cat-tab{
+  position:relative; z-index:1; cursor:pointer;
+  padding:9px 20px; border-radius:calc(var(--r-md) - 4px); border:none;
+  background:transparent; color:var(--text-3);
+  font-weight:600; font-size:.83rem;
+  display:flex; align-items:center; gap:7px; white-space:nowrap;
+  transition:color var(--t-fast) ease;
+}
+.cat-tab:hover{ color:var(--text-2); }
+.cat-tab.active{ color:var(--accent); }
+
+/* upload box */
+.upload-box{
+  background:var(--bg-elevated); border:1.5px dashed var(--border-mid);
+  border-radius:var(--r-xl); padding:34px 24px; text-align:center;
+  margin-bottom:28px; transition:border-color var(--t-fast) ease, background var(--t-fast) ease;
+  cursor:pointer; position:relative;
+}
+.upload-box.drag{ border-color:var(--accent); background:var(--bg-overlay); }
+.upload-box input[type=file]{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+.upload-icon{
+  width:46px; height:46px; border-radius:50%; margin:0 auto 14px;
+  background:var(--accent-dim); border:1px solid var(--border-plat);
+  display:flex; align-items:center; justify-content:center; font-size:1.2rem;
+}
+.upload-box h3{ font-size:.95rem; font-weight:700; margin-bottom:5px; }
+.upload-box p{ color:var(--text-2); font-size:.8rem; }
+
+.upload-queue{ display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+.queue-item{
+  display:flex; align-items:center; gap:12px;
+  background:var(--bg-elevated); border:1px solid var(--border-soft);
+  border-radius:var(--r-md); padding:10px 14px;
+}
+.queue-thumb{ width:42px; height:42px; border-radius:8px; object-fit:cover; flex-shrink:0; background:var(--bg-raised); }
+.queue-info{ flex:1; min-width:0; }
+.queue-name{ font-size:.82rem; font-weight:600; color:var(--text-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.queue-status{ font-size:.74rem; color:var(--text-3); margin-top:2px; }
+.queue-status.ok{ color:var(--success); }
+.queue-status.err{ color:#f0a8a2; }
+.queue-spinner{
+  width:16px; height:16px; border-radius:50%; flex-shrink:0;
+  border:2px solid rgba(77,168,212,.25); border-top-color:var(--accent-light);
+  animation:spin .75s linear infinite; display:none;
+}
+.queue-item.loading .queue-spinner{ display:block; }
+.queue-check, .queue-x{ font-size:.95rem; flex-shrink:0; display:none; }
+.queue-item.done .queue-check{ display:block; color:var(--success); }
+.queue-item.failed .queue-x{ display:block; color:#f0a8a2; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+.upload-actions{ display:flex; gap:10px; justify-content:center; margin-bottom:40px; }
+.btn-primary{
+  padding:13px 26px; border:none; border-radius:50px;
+  background:rgba(77,168,212,.16); color:var(--accent-light);
+  cursor:pointer; font-weight:600; font-size:.88rem;
+  border:1px solid rgba(77,168,212,.30);
+  display:inline-flex; align-items:center; gap:8px;
+  transition:background var(--t-fast) ease, transform var(--t-fast) var(--spring);
+}
+.btn-primary:hover:not(:disabled){ background:rgba(77,168,212,.24); transform:scale(1.02); }
+.btn-primary:active:not(:disabled){ transform:scale(.96); }
+.btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
+.btn-ghost{
+  padding:13px 22px; border-radius:50px;
+  background:var(--glass-2); color:var(--text-2);
+  cursor:pointer; font-weight:500; font-size:.88rem;
+  border:1px solid var(--border-soft);
+  transition:background var(--t-fast) ease, color var(--t-fast) ease;
+}
+.btn-ghost:hover{ background:var(--glass-3); color:var(--text-1); }
+
+/* grid de fotos existentes con borrar */
+.section-divider{
+  display:flex; align-items:center; gap:14px; margin:8px 0 20px;
+  color:var(--text-2); font-size:.82rem; font-weight:600;
+}
+.section-divider::after{ content:""; flex:1; height:1px; background:var(--border-soft); }
+
+.admin-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:10px; margin-bottom:20px;
+}
+.admin-thumb{
+  position:relative; border-radius:var(--r-md); overflow:hidden;
+  background:var(--bg-elevated); aspect-ratio:1/1;
+  border:1px solid var(--border-soft);
+}
+.admin-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.admin-thumb .del-btn{
+  position:absolute; top:6px; right:6px; z-index:2;
+  width:28px; height:28px; border-radius:50%; border:none; cursor:pointer;
+  background:rgba(20,12,14,.75); color:#f0a8a2;
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(6px); border:1px solid rgba(226,104,95,.30);
+  transition:background var(--t-fast) ease, transform var(--t-fast) var(--spring);
+}
+.admin-thumb .del-btn:hover{ background:rgba(226,104,95,.35); transform:scale(1.1); }
+.admin-thumb .del-btn:active{ transform:scale(.9); }
+.admin-thumb .del-btn.loading{ pointer-events:none; }
+.admin-thumb .del-spinner{
+  display:none; width:13px; height:13px; border-radius:50%;
+  border:2px solid rgba(255,255,255,.3); border-top-color:#fff;
+  animation:spin .6s linear infinite;
+}
+.admin-thumb .del-btn.loading .del-spinner{ display:block; }
+.admin-thumb .del-btn.loading svg{ display:none; }
+
+.empty-note{ color:var(--text-3); font-size:.85rem; padding:30px 0; text-align:center; }
+
+/* toast */
+.toast{
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--bg-elevated); border:1px solid var(--border-plat);
+  color:var(--text-1); padding:13px 22px; border-radius:50px;
+  font-size:.85rem; font-weight:500; box-shadow:0 12px 40px rgba(0,0,0,.5);
+  opacity:0; pointer-events:none; z-index:6000;
+  transition:opacity var(--t-fast) ease, transform var(--t-fast) var(--ease);
+  display:flex; align-items:center; gap:8px;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.error{ border-color:rgba(226,104,95,.4); }
+
+@media(max-width:480px){
+  .admin-grid{ grid-template-columns:repeat(3,1fr); gap:8px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark">VD</div>
+    <div class="logo-text">Vidrios <span>Dany</span></div>
+  </a>
+  <div class="header-right">
+    <a href="index.html" class="back-link">← Ver sitio</a>
+    <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
+  </div>
+</header>
+
+<!-- ══ LOGIN ══ -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <div class="login-icon">🔒</div>
+    <h1>Panel de Administración</h1>
+    <p>Ingresa tu token de acceso de GitHub para subir o eliminar fotos de la galería.</p>
+
+    <div class="login-error" id="loginError"></div>
+
+    <label for="tokenInput">Token de acceso</label>
+    <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+
+    <button class="login-btn" id="loginBtn">
+      <span id="loginBtnText">Entrar al panel</span>
+    </button>
+
+    <div class="login-help">
+      ¿No tienes un token? Créalo en
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens</a>
+      con permiso <code>Contents: Read and write</code> sobre el repositorio
+      <code>danieltorgle/vidriosDani</code>. Guárdalo en un lugar seguro: solo se muestra una vez.
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANEL ══ -->
+<div class="panel" id="panel">
+  <div class="panel-inner">
+    <div class="panel-header">
+      <div class="sec-label" style="justify-content:center;">Gestión de galería</div>
+      <h1>Subir y administrar fotos</h1>
+      <p class="panel-sub">Los cambios se publican directamente en tu sitio. Pueden tardar 1–2 minutos en reflejarse.</p>
+    </div>
+
+    <div class="seg-wrap" id="segWrap">
+      <div class="seg-pill" id="segPill"></div>
+      <button class="cat-tab active" data-cat="canceles">🪟 Canceles</button>
+      <button class="cat-tab" data-cat="ventanas">🔲 Ventanas</button>
+      <button class="cat-tab" data-cat="fachadas">🏢 Fachadas</button>
+      <button class="cat-tab" data-cat="puertas">🚪 Puertas</button>
+    </div>
+
+    <label class="upload-box" id="uploadBox">
+      <input type="file" id="fileInput" accept="image/*" multiple>
+      <div class="upload-icon">📤</div>
+      <h3>Arrastra fotos aquí o toca para elegir</h3>
+      <p>JPG o PNG · se subirán a la categoría seleccionada arriba</p>
+    </label>
+
+    <div class="upload-queue" id="uploadQueue"></div>
+
+    <div class="section-divider">Fotos actuales</div>
+    <div class="admin-grid" id="adminGrid"></div>
+    <p class="empty-note" id="emptyNote" style="display:none;">Aún no hay fotos en esta categoría.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════
+   CONFIGURACIÓN DEL REPOSITORIO
+══════════════════════════════════════ */
+const REPO_OWNER  = "danieltorgle";
+const REPO_NAME   = "vidriosDani";
+const REPO_BRANCH = "main"; // cambia a "master" si tu repo usa esa rama
+const DATA_PATH   = "img/data.json";
+const CATEGORIES  = ["canceles","ventanas","fachadas","puertas"];
+
+let TOKEN = "";
+let currentCat = "canceles";
+let galleryData = { canceles:[], ventanas:[], fachadas:[], puertas:[] };
+
+const API = "https://api.github.com";
+
+function ghHeaders(){
+  return {
+    "Authorization": "Bearer " + TOKEN,
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+}
+
+/* ── Toast ── */
+let toastTimer;
+function showToast(msg, isError){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.toggle("error", !!isError);
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3600);
+}
+
+/* ── Helpers base64 ── */
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ── Llamadas API GitHub ── */
+async function ghGetFile(path){
+  const url = `${API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${REPO_BRANCH}`;
+  const res = await fetch(url, { headers: ghHeaders() });
+  if(res.status === 404) return null;
+  if(!res.ok) throw new Error("Error " + res.status + " al leer " + path);
+  return res.json();
+}
+
+async function ghPutFile(path, base64Content, message, sha){
+  const url = `${API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
+  const body = {
+    message,
+    content: base64Content,
+    branch: REPO_BRANCH
+  };
+  if(sha) body.sha = sha;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: ghHeaders(),
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || ("Error " + res.status + " al guardar " + path));
+  }
+  return res.json();
+}
+
+async function ghDeleteFile(path, message, sha){
+  const url = `${API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: ghHeaders(),
+    body: JSON.stringify({ message, sha, branch: REPO_BRANCH })
+  });
+  if(!res.ok){
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || ("Error " + res.status + " al borrar " + path));
+  }
+  return res.json();
+}
+
+/* ── Cargar data.json (con su sha para poder actualizarlo) ── */
+let dataSha = null;
+async function loadData(){
+  const file = await ghGetFile(DATA_PATH);
+  if(file){
+    dataSha = file.sha;
+    const decoded = decodeURIComponent(escape(atob(file.content.replace(/\n/g,""))));
+    galleryData = JSON.parse(decoded);
+  } else {
+    dataSha = null;
+    galleryData = { canceles:[], ventanas:[], fachadas:[], puertas:[] };
+  }
+  CATEGORIES.forEach(c => { if(!galleryData[c]) galleryData[c] = []; });
+}
+
+async function saveData(message){
+  const json = JSON.stringify(galleryData, null, 2);
+  const base64 = btoa(unescape(encodeURIComponent(json)));
+  const result = await ghPutFile(DATA_PATH, base64, message, dataSha);
+  dataSha = result.content.sha;
+}
+
+/* ══════════════════════════════════════
+   LOGIN
+══════════════════════════════════════ */
+const loginWrap  = document.getElementById("loginWrap");
+const panelEl    = document.getElementById("panel");
+const loginBtn   = document.getElementById("loginBtn");
+const loginError = document.getElementById("loginError");
+const tokenInput = document.getElementById("tokenInput");
+const logoutBtn  = document.getElementById("logoutBtn");
+
+async function verifyToken(token){
+  const res = await fetch(`${API}/repos/${REPO_OWNER}/${REPO_NAME}`, {
+    headers: { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json" }
+  });
+  if(res.status === 401 || res.status === 403) throw new Error("Token inválido o sin permisos.");
+  if(res.status === 404) throw new Error("No se encontró el repositorio. Verifica los permisos del token.");
+  if(!res.ok) throw new Error("No se pudo verificar el token (error " + res.status + ").");
+  const repo = await res.json();
+  if(repo.permissions && repo.permissions.push === false){
+    throw new Error("El token no tiene permiso de escritura sobre este repositorio.");
+  }
+}
+
+async function doLogin(){
+  const val = tokenInput.value.trim();
+  loginError.style.display = "none";
+  if(!val){
+    loginError.textContent = "Ingresa un token.";
+    loginError.style.display = "flex";
+    return;
+  }
+  loginBtn.disabled = true;
+  document.getElementById("loginBtnText").textContent = "Verificando…";
+  try{
+    await verifyToken(val);
+    TOKEN = val;
+    sessionStorage.setItem("vd_admin_token", val);
+    enterPanel();
+  } catch(err){
+    loginError.textContent = err.message || "No se pudo iniciar sesión.";
+    loginError.style.display = "flex";
+  } finally {
+    loginBtn.disabled = false;
+    document.getElementById("loginBtnText").textContent = "Entrar al panel";
+  }
+}
+
+loginBtn.addEventListener("click", doLogin);
+tokenInput.addEventListener("keydown", e => { if(e.key === "Enter") doLogin(); });
+
+logoutBtn.addEventListener("click", () => {
+  sessionStorage.removeItem("vd_admin_token");
+  TOKEN = "";
+  panelEl.style.display = "none";
+  loginWrap.style.display = "flex";
+  logoutBtn.style.display = "none";
+  tokenInput.value = "";
+});
+
+async function enterPanel(){
+  loginWrap.style.display = "none";
+  panelEl.style.display = "block";
+  logoutBtn.style.display = "flex";
+  try{
+    await loadData();
+    renderAdminGrid();
+  } catch(err){
+    showToast(err.message || "Error al cargar la galería", true);
+  }
+}
+
+/* Sesión persistente solo durante esta pestaña/sesión del navegador */
+window.addEventListener("DOMContentLoaded", () => {
+  const saved = sessionStorage.getItem("vd_admin_token");
+  if(saved){
+    TOKEN = saved;
+    verifyToken(saved).then(enterPanel).catch(() => {
+      sessionStorage.removeItem("vd_admin_token");
+    });
+  }
+});
+
+/* ══════════════════════════════════════
+   TABS DE CATEGORÍA
+══════════════════════════════════════ */
+const tabs = document.querySelectorAll(".cat-tab");
+const pill = document.getElementById("segPill");
+function movePill(tab){ pill.style.left = tab.offsetLeft+"px"; pill.style.width = tab.offsetWidth+"px"; }
+window.addEventListener("load", () => { const a = document.querySelector(".cat-tab.active"); if(a) movePill(a); });
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    tabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    movePill(tab);
+    currentCat = tab.dataset.cat;
+    renderAdminGrid();
+  });
+});
+
+/* ══════════════════════════════════════
+   GRID DE FOTOS EXISTENTES + BORRAR
+══════════════════════════════════════ */
+const RAW_BASE = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/`;
+
+function renderAdminGrid(){
+  const grid = document.getElementById("adminGrid");
+  const empty = document.getElementById("emptyNote");
+  const items = galleryData[currentCat] || [];
+  grid.innerHTML = "";
+  empty.style.display = items.length ? "none" : "block";
+  items.forEach(file => {
+    const cell = document.createElement("div");
+    cell.className = "admin-thumb";
+    cell.innerHTML = `
+      <img src="${RAW_BASE}img/${currentCat}/${file}?v=${Date.now()}" alt="${file}" loading="lazy">
+      <button class="del-btn" title="Eliminar foto" data-file="${file}">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <span class="del-spinner"></span>
+      </button>`;
+    grid.appendChild(cell);
+  });
+  grid.querySelectorAll(".del-btn").forEach(btn => {
+    btn.addEventListener("click", () => deletePhoto(btn.dataset.file, btn));
+  });
+}
+
+async function deletePhoto(file, btnEl){
+  if(!confirm(`¿Eliminar "${file}" de ${currentCat}? Esta acción no se puede deshacer.`)) return;
+  btnEl.classList.add("loading");
+  const path = `img/${currentCat}/${file}`;
+  try{
+    const remote = await ghGetFile(path);
+    if(remote){
+      await ghDeleteFile(path, `Eliminar foto ${file} de ${currentCat}`, remote.sha);
+    }
+    galleryData[currentCat] = galleryData[currentCat].filter(f => f !== file);
+    await saveData(`Actualizar galería: quitar ${file} de ${currentCat}`);
+    renderAdminGrid();
+    showToast("Foto eliminada correctamente.");
+  } catch(err){
+    showToast(err.message || "No se pudo eliminar la foto.", true);
+    btnEl.classList.remove("loading");
+  }
+}
+
+/* ══════════════════════════════════════
+   SUBIDA DE FOTOS
+══════════════════════════════════════ */
+const uploadBox  = document.getElementById("uploadBox");
+const fileInput  = document.getElementById("fileInput");
+const queueEl    = document.getElementById("uploadQueue");
+
+["dragenter","dragover"].forEach(evt =>
+  uploadBox.addEventListener(evt, e => { e.preventDefault(); uploadBox.classList.add("drag"); })
+);
+["dragleave","drop"].forEach(evt =>
+  uploadBox.addEventListener(evt, e => { e.preventDefault(); uploadBox.classList.remove("drag"); })
+);
+uploadBox.addEventListener("drop", e => {
+  const files = [...e.dataTransfer.files].filter(f => f.type.startsWith("image/"));
+  if(files.length) handleFiles(files);
+});
+fileInput.addEventListener("change", () => {
+  const files = [...fileInput.files];
+  if(files.length) handleFiles(files);
+  fileInput.value = "";
+});
+
+function nextFileName(existingList, ext){
+  const nums = existingList
+    .map(f => parseInt(f.match(/^(\d+)\./)?.[1] || "0", 10))
+    .filter(n => !isNaN(n));
+  const max = nums.length ? Math.max(...nums) : 0;
+  return (max + 1) + "." + ext;
+}
+
+async function handleFiles(files){
+  for(const file of files){
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace("jpeg","jpg");
+    const targetName = nextFileName(galleryData[currentCat], ext);
+    const row = document.createElement("div");
+    row.className = "queue-item loading";
+    const previewUrl = URL.createObjectURL(file);
+    row.innerHTML = `
+      <img class="queue-thumb" src="${previewUrl}" alt="">
+      <div class="queue-info">
+        <div class="queue-name">${targetName} — ${currentCat}</div>
+        <div class="queue-status">Subiendo…</div>
+      </div>
+      <div class="queue-spinner"></div>
+      <span class="queue-check">✓</span>
+      <span class="queue-x">✕</span>`;
+    queueEl.prepend(row);
+
+    try{
+      const base64 = await fileToBase64(file);
+      const path = `img/${currentCat}/${targetName}`;
+      await ghPutFile(path, base64, `Agregar foto ${targetName} a ${currentCat}`);
+      galleryData[currentCat].push(targetName);
+      await saveData(`Actualizar galería: agregar ${targetName} a ${currentCat}`);
+
+      row.classList.remove("loading"); row.classList.add("done");
+      row.querySelector(".queue-status").textContent = "Subida con éxito";
+      row.querySelector(".queue-status").classList.add("ok");
+      renderAdminGrid();
+    } catch(err){
+      row.classList.remove("loading"); row.classList.add("failed");
+      row.querySelector(".queue-status").textContent = err.message || "Error al subir";
+      row.querySelector(".queue-status").classList.add("err");
+      showToast("Error al subir " + targetName, true);
+    }
+  }
+}
+</script>
+</body>
+</html>
